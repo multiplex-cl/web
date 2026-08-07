@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   Sistema de diseño Multiplex — tokens de color
+   Paleta premium biotech: fondos claros, tinta navy, acento teal + indigo.
+   =========================================================================== */
+:root {
+  --color-ink: 10 16 32; /* navy casi negro para texto principal */
+  --color-surface: 255 255 255; /* blanco */
+  --color-mist: 244 247 251; /* gris-azulado muy claro para fondos */
+  --color-line: 226 232 240; /* bordes suaves */
+  --color-muted: 90 102 122; /* texto secundario */
+
+  --color-brand: 20 121 190; /* azul de marca Multiplex (#1479BE) */
+  --color-brand-soft: 226 240 251; /* azul muy claro para fondos (#E2F0FB) */
+  --color-brand-strong: 15 90 143; /* azul profundo para hover (#0F5A8F) */
+
+  --color-accent: 14 116 144; /* cian-azul — epigenética / gradientes (#0E7490) */
+
+  --color-night: 8 22 40; /* azul-navy profundo para secciones oscuras (#081628) */
+  --color-night-soft: 16 33 56;
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-sora);
+}
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-surface text-ink antialiased;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgb(var(--color-brand) / 0.22);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight text-ink;
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--color-brand));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Respeto por reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-container px-5 sm:px-6 lg:px-8;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand via-brand to-accent bg-clip-text text-transparent;
+  }
+
+  /* Tarjeta base con profundidad suave */
+  .card-surface {
+    @apply rounded-2xl border border-line bg-surface shadow-soft transition duration-300;
+  }
+
+  .card-surface:hover {
+    @apply shadow-lift;
+  }
+
+  /* Etiqueta de sección (eyebrow) */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong;
+  }
+
+  /* Sutil grid de fondo para secciones oscuras */
+  .bg-grid-dark {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+}
+
+/* Reveal on scroll — se activa con IntersectionObserver (ver Reveal.tsx) */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
