@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button, ArrowRight } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/icons";
 import { getOrganizationTypes } from "@/content/data";
+import { web3formsKey } from "@/content/site";
 import { getContent, type Locale } from "@/content";
 import { cn } from "@/lib/cn";
 
@@ -49,6 +50,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
   const [values, setValues] = useState<FormState>(initial);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [botcheck, setBotcheck] = useState(""); // honeypot anti-spam (Web3Forms)
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -67,12 +69,31 @@ export function ContactForm({ locale }: { locale: Locale }) {
 
     setStatus("sending");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, locale }),
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: web3formsKey,
+          subject: `Nuevo contacto — Multiplex (${values.empresa || values.nombre})`,
+          from_name: "Sitio web Multiplex",
+          // Web3Forms usa el campo `email` como reply-to.
+          email: values.correo,
+          Nombre: values.nombre,
+          Empresa: values.empresa,
+          Cargo: values.cargo,
+          Correo: values.correo,
+          País: values.pais,
+          "Tipo de organización": values.tipoOrganizacion,
+          "Qué quiere desarrollar": values.objetivo,
+          "Volumen estimado de muestras": values.volumen,
+          "Plazo esperado": values.plazo,
+          Mensaje: values.mensaje,
+          Idioma: locale,
+          botcheck,
+        }),
       });
-      if (!res.ok) throw new Error("bad response");
+      const data = await res.json().catch(() => ({ success: false }));
+      if (!res.ok || !data.success) throw new Error("bad response");
       setStatus("success");
       setValues(initial);
     } catch {
@@ -100,6 +121,17 @@ export function ContactForm({ locale }: { locale: Locale }) {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-5">
+      {/* Honeypot anti-spam: oculto para usuarios, los bots lo llenan. */}
+      <input
+        type="text"
+        name="botcheck"
+        value={botcheck}
+        onChange={(e) => setBotcheck(e.target.value)}
+        className="hidden"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+      />
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id="nombre" label={c.fields.nombre} error={errors.nombre} required>
           <input

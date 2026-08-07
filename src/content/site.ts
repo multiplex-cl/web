@@ -9,7 +9,7 @@ export const site = {
   legalName: "Multiplex SpA",
   rut: "76.701.556-9",
   tagline: "Plataforma de desarrollo de productos genéticos y epigenéticos",
-  url: "https://www.multiplex.bio",
+  url: "https://multiplex.bio",
   locale: "es-CL",
   country: "Chile",
   email: "contacto@multiplex.bio",
@@ -19,6 +19,13 @@ export const site = {
     linkedin: "https://cl.linkedin.com/company/multiplexbio",
   },
 } as const;
+
+/**
+ * Access key pública de Web3Forms (por diseño va en el cliente; no es secreta).
+ * El formulario envía a Web3Forms, que reenvía cada solicitud al correo
+ * configurado en la cuenta de Web3Forms (contacto@multiplex.bio).
+ */
+export const web3formsKey = "dad0ff43-557c-41e6-9bc4-876c388323cd";
 
 export type NavItem = {
   label: string;
